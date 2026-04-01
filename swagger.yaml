@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:5000/api/v1
     description: Local Server
+  - url: https://finance-data-processing-access-control-fj38.onrender.com/api/v1
+    description: Production Server
 components:
   securitySchemes:
     bearerAuth:
@@ -68,6 +70,176 @@ paths:
       responses:
         '200':
           description: Success
+          
+  /users:
+    get:
+      summary: Get all users (Admin only)
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+          
+  /users/{id}:
+    patch:
+      summary: Update user role/status (Admin only)
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: objectId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [viewer, analyst, admin]
+                status:
+                  type: string
+                  enum: [active, inactive]
+      responses:
+        '200':
+          description: Success
+          
+  /transactions:
+    get:
+      summary: Get all transactions (Analyst, Admin)
+      tags:
+        - Transactions
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [income, expense]
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+    post:
+      summary: Create transaction (Admin only)
+      tags:
+        - Transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - type
+                - category
+              properties:
+                amount:
+                  type: number
+                type:
+                  type: string
+                  enum: [income, expense]
+                category:
+                  type: string
+                date:
+                  type: string
+                  format: date-time
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Created
+          
+  /transactions/{id}:
+    get:
+      summary: Get single transaction (Analyst, Admin)
+      tags:
+        - Transactions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    patch:
+      summary: Update transaction (Admin only)
+      tags:
+        - Transactions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                type:
+                  type: string
+                  enum: [income, expense]
+                category:
+                  type: string
+                date:
+                  type: string
+                  format: date-time
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Success
+    delete:
+      summary: Delete transaction (Admin only)
+      tags:
+        - Transactions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+          
   /dashboard/summary:
     get:
       summary: Get dashboard summary
